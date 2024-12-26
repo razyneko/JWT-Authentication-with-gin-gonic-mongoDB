@@ -12,7 +12,7 @@ A RESTful API built using **Go** and **Gin Gonic** that implements JSON Web Toke
 - **API Endpoints**:
   - `/signup`: Registers a new user.
   - `/login`: Authenticates a user and returns a JWT token.
-  - `/user`: Returns user data for authenticated users.
+  - `/users`: Returns user data for authenticated users.
   - Protected routes require JWT in the `Authorization` header.
 
 ## Technologies Used
@@ -90,7 +90,7 @@ A RESTful API built using **Go** and **Gin Gonic** that implements JSON Web Toke
   - **200 OK**: Returns JWT token.
   - **401 Unauthorized**: Invalid credentials.
 
-### `GET /user`
+### `GET /users`
 - Returns the authenticated user's data (requires a valid JWT token in the `Authorization` header).
 - Example Request:
   ```bash
