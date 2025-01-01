@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/razyneko/jwt-auth-with-go-gin-gonic-mongodb/routes"
@@ -27,15 +26,6 @@ func main() {
 	routes.AuthRoutes(router)
 	routes.UserRoutes(router)
 
-	// APIs
-	router.GET("/api-1", func(c *gin.Context){
-		// *gin.Context has w http.ResposneWriter and r *http.Request built in
-		c.JSON(200, gin.H{"success":"Access granted for api-1"})
-	})
-
-	router.GET("/api-2", func(c *gin.Context){
-		c.JSON(200, gin.H{"success": "Access granted for api-2"})
-	})
-
+	// start the server
 	router.Run(":" + port)
 }
