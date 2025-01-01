@@ -37,7 +37,7 @@ A RESTful API built using **Go** and **Gin Gonic** that implements JSON Web Toke
 
 1. Clone the repository:
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/razyneko/JWT-Authentication-with-gin-gonic-mongoDB
    ```
 
 2. Navigate to the project directory:
