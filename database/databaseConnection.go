@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -30,8 +29,10 @@ func DBinstance() *mongo.Client{
 	if err != nil{
 		log.Fatal("Couldn't connect to MongoDB")
 	}
+
 	return client
 }
+
 // exportable var for mongo client
 var Client *mongo.Client = DBinstance()
 
