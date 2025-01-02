@@ -5,12 +5,18 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // DBInstance() creates a mongo client
 func DBinstance() *mongo.Client{
+	err := godotenv.Load(".env")
+	if err != nil{
+		log.Fatal("Error loading .env file")
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	// creates a context with a deadline of 10 seconds from now. It ensures that any operation using this context will automatically be canceled if it exceeds the 10-second limit.
 

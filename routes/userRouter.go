@@ -8,9 +8,9 @@ import (
 
 func UserRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.Use(middleware.Authenticate()) // to ensure both routes are protected
-	// after login user will have a token
-	// user route cant be used without token
-	// private routes, require authentication to use
+	// after login, user will have a token
+	// user route can't be used without JWT
+	// private routes require authentication to use
 	incomingRoutes.GET("/users", controllers.GetUsers())
 	incomingRoutes.GET("/users/:userId", controllers.GetUser())
 }
