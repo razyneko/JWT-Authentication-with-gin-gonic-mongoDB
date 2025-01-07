@@ -1,154 +1,124 @@
-# JWT Authentication with Gin Gonic
+# JWT Auth with Gin
 
-A RESTful API built using **Go** and **Gin Gonic** that implements JSON Web Token (JWT) based authentication for secure user login, registration, and session management. The API allows users to sign up, log in, and access protected resources with token-based authentication.
+A simple **JWT-based authentication system** built using **Go** and **Gin Gonic** for user registration, login, and secure authentication.
 
 ## Features
 
-- **User Authentication**: Secure login and registration via JWT tokens.
-- **Protected Routes**: Token-based authorization for accessing protected routes.
-- **Role-Based Access**: Implemented basic user roles for varying access levels (optional).
-- **MongoDB Integration**: User data stored in MongoDB for persistent authentication.
-- **Session Management**: Token expiration and refresh features (optional).
-- **API Endpoints**:
-  - `/signup`: Registers a new user.
-  - `/login`: Authenticates a user and returns a JWT token.
-  - `/users`: Returns user data for authenticated users.
-  - Protected routes require JWT in the `Authorization` header.
+- **User Registration**: Allows users to sign up with their details (first name, last name, email, phone, password, and user type).
+- **User Login**: Users can log in with their email and password to receive a **JWT token**.
+- **JWT Authentication**: Secures private routes with JWT tokens.
+- **Password Hashing**: Secure password storage using bcrypt hashing.
+- **Refresh Tokens**: Allows users to refresh their session without re-authenticating.
 
-## Technologies Used
+## Technologies
 
-- **Backend**: Go, Gin Gonic
-- **Authentication**: JWT (JSON Web Tokens)
-- **Database**: MongoDB
-- **Go Packages**:
-  - `github.com/dgrijalva/jwt-go`: For generating and validating JWT tokens.
-  - `github.com/gin-gonic/gin`: Web framework for building the REST API.
-  - `go.mongodb.org/mongo-driver/mongo`: MongoDB driver for Go.
+- **Go**: Backend language for API development.
+- **MongoDB**: NoSQL database for storing user data.
+- **Gin Gonic**: Go web framework for routing.
+- **JWT**: For managing authentication tokens.
+- **bcrypt**: For hashing passwords securely.
 
-## Installation
+## Setup Instructions
 
 ### Prerequisites
 
-1. **Go**: Make sure Go is installed on your system. If not, install it from [the Go website](https://golang.org/doc/install).
+- [Go](https://golang.org/dl/) (v1.18+)
+- [MongoDB](https://www.mongodb.com/try/download/community) (local or cloud)
 
-2. **MongoDB**: Ensure you have MongoDB running on your local machine or have access to a cloud database.
+### 1. Clone the Repository
 
-### Steps to Set Up
+```bash
+git clone https://github.com/yourusername/jwt-auth-with-gin.git
+cd jwt-auth-with-gin
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/razyneko/JWT-Authentication-with-gin-gonic-mongoDB
-   ```
+### 2. Create `.env` File
 
-2. Navigate to the project directory:
-   ```bash
-   cd jwt-authentication-gin
-   ```
+In the root directory, create a `.env` file and add:
 
-3. Install Go dependencies:
-   ```bash
-   go mod tidy
-   ```
+```env
+PORT=8000
+MONGO_URI="mongodb://localhost:27017/go-auth"
+JWT_SECRET="your-secret-key"
+```
 
-4. Set up your MongoDB connection:
-   - Open the `routes/connection.go` file and configure the MongoDB URI if necessary.
-   - By default, it connects to `mongodb://localhost:27017`.
+### 3. Install Dependencies
 
-5. Run the API server:
-   ```bash
-   go run main.go
-   ```
+```bash
+go mod tidy
+```
 
-6. The API will be accessible at `http://localhost:8000`.
+### 4. Run the Application
 
-## API Endpoints
+```bash
+go run main.go
+```
 
-### `POST /signup`
-- Registers a new user.
-- Request Body:
+The app will be available at `http://localhost:8000`.
+
+### 5. API Endpoints
+
+#### `POST /users/signup`
+- **Description**: Register a new user.
+- **Request**:
   ```json
   {
-    "username": "user123",
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
     "password": "password123",
-    "email": "user@example.com"
+    "phone": "1234567890",
+    "user_type": "USER"
   }
   ```
-- Response:
-  - **200 OK**: User registered successfully.
-  - **400 Bad Request**: Invalid input or existing user.
+- **Response**: 
+  - `201 Created` on success
+  - `400 Bad Request` on validation failure
 
-### `POST /login`
-- Authenticates a user and returns a JWT token.
-- Request Body:
+#### `POST /users/login`
+- **Description**: Log in with email and password to receive a JWT.
+- **Request**:
   ```json
   {
-    "username": "user123",
+    "email": "john.doe@example.com",
     "password": "password123"
   }
   ```
-- Response:
-  - **200 OK**: Returns JWT token.
-  - **401 Unauthorized**: Invalid credentials.
+- **Response**: 
+  - `200 OK` with JWT token
+  - `400 Bad Request` on invalid credentials
 
-### `GET /users`
-- Returns the authenticated user's data (requires a valid JWT token in the `Authorization` header).
-- Example Request:
-  ```bash
-  curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8000/user
-  ```
-- Response:
-  - **200 OK**: Returns user data.
-  - **401 Unauthorized**: Invalid or expired token.
+#### `GET /users/profile`
+- **Description**: Get user profile (requires valid JWT).
+- **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+- **Response**: 
+  - `200 OK` with user details
+  - `401 Unauthorized` on missing or invalid token
 
-### Protected Routes
-- All protected routes require the JWT token to be passed in the `Authorization` header.
-- Example:
-  ```bash
-  curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8000/protected
-  ```
+Here’s how you can update the README to mention that you can either use MongoDB locally on your PC or run it in a Docker container:
 
-## JWT Token Expiry & Refresh (Optional)
-- Tokens have a limited expiry time.
-- To implement token refresh, you can extend the functionality of the API to accept a refresh token and return a new access token.
+---
 
-## Middleware
+### 6. MongoDB Setup
 
-The application uses a middleware to protect routes that require authentication. This middleware checks the validity of the JWT token in the `Authorization` header.
+You have two options to run MongoDB for this project:
 
-Example:
-```go
-func TokenAuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        tokenString := c.GetHeader("Authorization")
-        if tokenString == "" {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token not provided"})
-            c.Abort()
-            return
-        }
+#### Option 1: Use MongoDB Locally on Your PC
 
-        // Validate token here
-        // If invalid, abort the request
-    }
-}
-```
+1. **Install MongoDB** on your machine if you haven't already. You can find installation instructions on the [MongoDB official website](https://www.mongodb.com/docs/manual/installation/).
 
-## Testing
+2. **Run MongoDB**:
+   - Start the MongoDB server locally by running:
+     ```bash
+     mongod
+     ```
+   - This will start MongoDB on the default port `27017`.
 
-You can use tools like **Postman** or **cURL** to interact with the API.
+#### Option 2: Use MongoDB in a Docker Container
 
-### Example cURL Commands:
-
-- **Register a User**:
-  ```bash
-  curl -X POST http://localhost:8000/signup -d '{"username": "user123", "password": "password123", "email": "user@example.com"}' -H "Content-Type: application/json"
-  ```
-
-- **Login to Get Token**:
-  ```bash
-  curl -X POST http://localhost:8000/login -d '{"username": "user123", "password": "password123"}' -H "Content-Type: application/json"
-  ```
-
-- **Access Protected Route**:
-  ```bash
-  curl -H "Authorization: Bearer <JWT_TOKEN>" http://localhost:8000/user
-  ```
+1. **Start MongoDB container**:
+   If you prefer to use Docker, you can start a MongoDB container by running:
+   ```bash
+   docker run -d --name mongodb -p 27017:27017 mongo
+   ```
+   This command will pull the official MongoDB image, start the container, and expose the default MongoDB port (`27017`) on your machine.
