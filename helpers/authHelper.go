@@ -17,7 +17,7 @@ func CheckUserType(c *gin.Context, role string)(err error){
 
 func MatchUserTypeToUId(c *gin.Context, userId string) (err error) {
 	userType := c.GetString("userType")
-	uid := c.GetString("uid")
+	uid := c.GetString("userId")
 	err = nil
 
 	// not allowing user to access other user's data

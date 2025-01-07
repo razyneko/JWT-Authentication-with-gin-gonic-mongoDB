@@ -45,8 +45,13 @@ func GenerateAllTokens(email string, firstName string, lastName string, userType
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
 		},
 	}
-
+	
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
+	
+	if err != nil {
+		log.Panic(err)
+		return
+	}
 	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(SECRET_KEY))
 
 	if err != nil {
@@ -87,6 +92,9 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string){
 func UpdateAllTokens(signedToken string, signedRefreshToken string, userId string) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
+	defer cancel()
+               
+
 	var updateObj primitive.D
 	updateObj = append(updateObj, bson.E{Key: "token", Value: signedToken})
 	updateObj = append(updateObj, bson.E{Key: "refreshToken", Value: signedRefreshToken})
@@ -109,7 +117,6 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId strin
 		&opt,
 	)
 
-	defer cancel()
 
 	if err != nil {
 		log.Panic(err)

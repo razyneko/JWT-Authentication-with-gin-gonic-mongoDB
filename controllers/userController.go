@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/razyneko/jwt-auth-with-go-gin-gonic-mongodb/database"
@@ -17,7 +18,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
+var userCollection *mongo.Collection = database.OpenCollection(database.Client, "users")
 var validate = validator.New()
 
 func HashPassword(password string) string {
@@ -116,14 +117,16 @@ func Login() gin.HandlerFunc {
 			return
 		}
 		if foundUser.Email == nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "User Not Found"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "user Not Found"})
 		}
-		token, refreshToken, _ := helpers.GenerateAllTokens(*foundUser.Email, *foundUser.FirstName, *foundUser.LastName, *foundUser.UserType, *&foundUser.UserId)
+		token, refreshToken, _ := helpers.GenerateAllTokens(*foundUser.Email, *foundUser.FirstName, *foundUser.LastName, *foundUser.UserType, foundUser.UserId)
 		helpers.UpdateAllTokens(token, refreshToken, foundUser.UserId)
-		err = userCollection.FindOne(ctx, bson.M{"userId": foundUser.UserId}).Decode(&foundUser)
+
+		err = userCollection.FindOne(ctx, bson.M{"user_id": foundUser.UserId}).Decode(&foundUser)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
+
 		c.JSON(http.StatusOK, foundUser)
 	}
 }
@@ -145,6 +148,8 @@ func GetUsers() gin.HandlerFunc {
 		if err1 != nil || page < 1 {
 			page = 1
 		}
+		
+		// skip and limit
 
 		startIndex := (page - 1) * recordPerPage
 		startIndex, _ = strconv.Atoi(c.Query("startIndex"))
@@ -181,7 +186,8 @@ func GetUsers() gin.HandlerFunc {
 func GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// extract userId from the route
-		userId := c.Param("userId")
+		userId := c.Param("user_id")
+
 		// check if user is admin or not
 		if err := helpers.MatchUserTypeToUId(c, userId); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -191,8 +197,9 @@ func GetUser() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
 		var user models.User
-		err := userCollection.FindOne(ctx, bson.M{"userId": userId}).Decode(&user) // for converting json to struct
-
+		
+		err := userCollection.FindOne(ctx, bson.M{"user_id": userId}).Decode(&user) // for converting json to struct
+		
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

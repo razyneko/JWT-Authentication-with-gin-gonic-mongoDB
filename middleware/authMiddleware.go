@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/razyneko/jwt-auth-with-go-gin-gonic-mongodb/helpers"
@@ -11,7 +10,7 @@ func Authenticate() gin.HandlerFunc{
 	return func(c *gin.Context){
 		clientToken := c.Request.Header.Get("token")
 		if clientToken == ""{
-			c.JSON(http.StatusInsufficientStorage, gin.H{"error": fmt.Sprintf("No Authorization header provided")})
+			c.JSON(http.StatusInsufficientStorage, gin.H{"error": "No Authorization header provided"})
 			c.Abort()
 			return
 		}
@@ -21,6 +20,8 @@ func Authenticate() gin.HandlerFunc{
 			c.Abort()
 			return
 		}
+
+		// setting the context with details 
 		c.Set("email", claims.Email)
 		c.Set("firstName", claims.FirstName)
 		c.Set("uid", claims.Uid)

@@ -12,5 +12,5 @@ func UserRoutes(incomingRoutes *gin.Engine) {
 	// user route can't be used without JWT
 	// private routes require authentication to use
 	incomingRoutes.GET("/users", controllers.GetUsers())
-	incomingRoutes.GET("/users/:userId", controllers.GetUser())
+	incomingRoutes.GET("/users/:user_id", controllers.GetUser())
 }
